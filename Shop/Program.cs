@@ -1,16 +1,26 @@
 using Shop.Data.interfaces;
-using Shop.Data.mocks;
-
+using Shop.Data.Repository;
+using Shop.Data;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
+// БД
+// получаем строку подключения из файла конфигурации
+string connection = builder.Configuration.GetConnectionString("DefaultConnection");
+// добавляем контекст ApplicationContext в качестве сервиса в приложение
+builder.Services.AddDbContext<AppDBContent>(options => options.UseSqlServer(connection));
+
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 builder.Services.AddMvc(option => option.EnableEndpointRouting = false);
+
 // связь где реализуется интерфейс (в моке)
-builder.Services.AddTransient<IAllCars,MockCars >();
-builder.Services.AddTransient<ICarsCategory, MockCategory>();
+builder.Services.AddTransient<IAllCars,CarRepository >();
+builder.Services.AddTransient<ICarsCategory, CategoryRepository>();
+
 
 
 var app = builder.Build();
@@ -18,10 +28,19 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+
     app.UseExceptionHandler("/Error");
     app.UseHsts();
    
+    //using (var scope = app.ApplicationServices.CreateScope())
+    //{
+    //    AppDBContent content = scope.ServiceProvider.GetRequiredService<AppDBContent>();
+    //    DBObjects.Initial(content);
+    //}
+   
+   
 }
+
 
 
 app.UseDeveloperExceptionPage();
