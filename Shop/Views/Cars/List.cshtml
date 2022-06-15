@@ -1,12 +1,11 @@
 ﻿
 <h2>@Model.currCategory</h2>
+
 @{
-	foreach(var car in Model.AllCars)
+	foreach(car car in Model.AllCars)
 	{
+		@Html.Partial("AllCars",car)
 		
-		<div>
-		<h2>Модель: @car.Name</h2>
-		<h>Цена: @car.Price.ToString("c")</h>
-		</div>
 	}
 }
+

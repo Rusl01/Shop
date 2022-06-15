@@ -2,7 +2,7 @@ using Shop.Data.interfaces;
 using Shop.Data.Repository;
 using Shop.Data;
 using Microsoft.EntityFrameworkCore;
-
+using Shop.Data.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 // БД
@@ -11,11 +11,16 @@ string connection = builder.Configuration.GetConnectionString("DefaultConnection
 // добавляем контекст ApplicationContext в качестве сервиса в приложение
 builder.Services.AddDbContext<AppDBContent>(options => options.UseSqlServer(connection));
 
+builder.Services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
+builder.Services.AddScoped(sp => ShopCar.GetCar(sp));
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 builder.Services.AddMvc(option => option.EnableEndpointRouting = false);
+
+builder.Services.AddMemoryCache();
+builder.Services.AddSession();
 
 // связь где реализуется интерфейс (в моке)
 builder.Services.AddTransient<IAllCars,CarRepository >();
@@ -38,10 +43,10 @@ if (!app.Environment.IsDevelopment())
     //    DBObjects.Initial(content);
     //}
    
-   
 }
 
 
+app.UseSession();
 
 app.UseDeveloperExceptionPage();
 app.UseStatusCodePages();
@@ -54,6 +59,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
 
 app.MapRazorPages();
 
